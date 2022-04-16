@@ -11,8 +11,16 @@ const dotenv = require('dotenv');
 dotenv.config({ path: "./config.env" })
 
 
-mongoose.connect('mongodb+srv://larry:<password>@cluster0.twdrv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
-    .then(() => console.log('mongodb is connected...'));
+// 遠端連線字串
+const connectString = process.env.DATABASE.replace(
+    '<password>',
+    process.env.DATABASE_PASSWORD
+)
+// 連線字串
+mongoose.connect(connectString)
+    .then(() => {
+        console.log('資料庫連線成功')
+    })
 
 async function requestListener(req, res) {
 
