@@ -5,7 +5,10 @@ const { success, error } = require('./responseHandle.js');
 
 const ArticleListModel = require('./models/ArticleList');
 
-const PORT = process.env.PORT || PORT;
+/** 載入 全域變數套件 */
+const dotenv = require('dotenv');
+// 全域變數套件設定
+dotenv.config({ path: "./config.env" })
 
 
 mongoose.connect('mongodb+srv://larry:<password>@cluster0.twdrv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
