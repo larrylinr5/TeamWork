@@ -4,7 +4,7 @@ const moment = require('moment');
 const schemaOptions = {
     toObject: {
         getters: true,
-        virtuals: true,
+        virtual: true,
         versionKey: false,
         transform: function(doc, ret) {
             ret.id = ret._id;
@@ -13,7 +13,7 @@ const schemaOptions = {
     },
     toJSON: {
         getters: true,
-        virtuals: true,
+        virtual: true,
         versionKey: false,
         transform: function(doc, ret) {
             ret.id = ret._id;
