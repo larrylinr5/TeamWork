@@ -1,5 +1,6 @@
 const http = require('http');
 const mongoose = require('mongoose');
+const htmlEntities = require('html-entities');
 
 const { success, error } = require('./responseHandle.js');
 
@@ -22,6 +23,10 @@ mongoose.connect(connectString)
         console.log('資料庫連線成功')
     })
 
+function replaceHtmlSpecialCharacters(strAry) {
+    return strAry.map((str) => htmlEntities.encode(str.trim()));
+}
+
 async function requestListener(req, res) {
 
     let body = '';
@@ -39,12 +44,14 @@ async function requestListener(req, res) {
     } else if (req.url === '/ArticleList' && req.method === 'POST') {
         req.on('end', async () => {
             try {
-                let { userName, userContent, userPhoto } = JSON.parse(body);
+                // 前端給資料一定要照 userName, userContent, userPhoto, imgUrl 順序
+                const [
+                    userName,
+                    userContent,
+                    userPhoto,
+                    imgUrl
+                ] = replaceHtmlSpecialCharacters(Object.values(JSON.parse(body)));
                 let regex = /['\-<>]/g;
-
-                userName = userName.trim();
-                userContent = userContent.trim();
-                userPhoto = userPhoto.trim();
 
                 if (!userName) {
                     error(res, 'userName property is required');
@@ -54,8 +61,8 @@ async function requestListener(req, res) {
                     error(res, 'userContent property is required');
                     return;
                 }
-                if (regex.test(userName) || regex.test(userContent) || regex.test(userPhoto)) {
-                    error(res, "Do not use special symbol ( ' - < > )");
+                if (regex.test(userName) || regex.test(userContent) || regex.test(userPhoto) || regex.test(imgUrl)) {
+                    error(res, "Do not use special symbol dash(-)");
                     return;
                 }
 
@@ -64,6 +71,7 @@ async function requestListener(req, res) {
                         userName,
                         userContent,
                         userPhoto,
+                        imgUrl,
                     }
                 );
                 success(res, data);
