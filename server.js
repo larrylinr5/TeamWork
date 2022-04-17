@@ -4,6 +4,8 @@ const htmlEntities = require('html-entities');
 
 const { success, error } = require('./responseHandle.js');
 
+const ValidateArticleList = require('./utils/validateArticleList.js');
+
 const ArticleListModel = require('./models/ArticleList');
 
 /** 載入 全域變數套件 */
@@ -51,29 +53,22 @@ async function requestListener(req, res) {
                     userPhoto,
                     imgUrl
                 ] = replaceHtmlSpecialCharacters(Object.values(JSON.parse(body)));
-                let regex = /['\-<>]/g;
 
-                if (!userName) {
-                    error(res, 'userName property is required');
-                    return;
-                }
-                if (!userContent) {
-                    error(res, 'userContent property is required');
-                    return;
-                }
-                if (regex.test(userName) || regex.test(userContent) || regex.test(userPhoto) || regex.test(imgUrl)) {
-                    error(res, "Do not use special symbol dash(-)");
+                const userData = {
+                    userName,
+                    userContent,
+                    userPhoto,
+                    imgUrl
+                };
+                let validateProperty = new ValidateArticleList(userData);
+
+                validateProperty.start();
+                if (validateProperty.hasErrorMsg()) {
+                    error(res, validateProperty.errorMsg);
                     return;
                 }
 
-                const data = await ArticleListModel.create(
-                    {
-                        userName,
-                        userContent,
-                        userPhoto,
-                        imgUrl,
-                    }
-                );
+                const data = await ArticleListModel.create(userData);
                 success(res, data);
             } catch (err) {
                 error(res, err.message);
